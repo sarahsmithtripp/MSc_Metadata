@@ -37,3 +37,34 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+## other from R 
+.Rproj.user
+.Rhistory
+.RData
+_publish.R
+_book
+_bookdown_files
+rsconnect
+_RPA-Aqcuired-Data
+*.tif
+*.las
+*.jpg
+*.shp
+*.xml
+*.shx
+*.dbf
+*.cpg
+*.xlsx
+*.sbn
+*.sbx
+*.prj
+*.xml
+*.nit
+*.pdf
+*.tfw
+*.dir
+*.ovr
+*.gpkg
+*.qpj
+*.dat
