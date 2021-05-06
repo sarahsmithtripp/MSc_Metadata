@@ -1,0 +1,173 @@
+# Field Collected Data {#fielddat}
+
+
+To account for the impacts of vegetation and soil on microclimate, we recorded vegetation and soil characteristics. Within a 1 m radius of the logger, we collected measurements of leaf area index (LAI), tallest understory vegetation, litter depth and dominant cover type. 
+
+```{r include = F, warnings = F}
+library(rgdal)
+library(ggplot2)
+library(readxl)
+library(cowplot)
+library(dplyr)
+library(sp)
+```
+
+```{r echo = F, warnings = F}
+field_data <- list.files(paste0(getwd(), "/_Field-Collected-Data"), full.names = T)
+
+data_field <- function(file_name){ 
+  data <-list.files(file_name)
+  data_tb <- data.frame(`Data_Type` = rep(NA, length(data)), Files = data)
+  data_tb[1,1] <- paste(file_name)
+  return(data_tb)
+}
+
+df_field <- lapply(field_data, data_field) %>% bind_rows()
+names(field_data) <- "Files"
+
+knitr::kable(
+  df_field, booktabs = TRUE, longtable = T,
+  caption = 'Field Collected Data "_Field-Collected-Data"')
+
+
+
+```
+
+## GPS Points
+
+GPS points are recorded with a Leica 14 system [@leicageosystemsMeasurementPerformanceAccuracy2020]. These points were processed for accuracy. The raw xml files are included in this database, as well as the r code use to parse them. However, I recommend using the cleaned GPS point locations. Loaded below
+
+```{r echo = F}
+GIS_points <- read.csv("_Field-Collected-Data/GPS_Points/GIS_Points.csv")[1:231,]
+CRS_wgs8f <- sp::CRS('+proj=utm +zone=19 +datum=NAD83 +units=m +no_defs +ellps=GRS80
++towgs84=0,0,0')
+Points_SP <- SpatialPointsDataFrame(GIS_points[,3:4],
+                    GIS_points,    #the R object to convert
+                    proj4string = CRS_wgs8f)  
+plot(Points_SP)
+
+```
+
+## Leaf Area Index LiCOR data 
+
+LAI was measured using an Licor 2200 Plant Canopy Analyzer . The Licor 2220 is a passive sensor of leaf area index that combines measurements of solar radiation taken at five concentric circles with angles centered at 7 , 23, 38 , 53 , 68, all  relative to 90 degrees . Values of LAI are calculated from the difference of measured radiation below canopy and measurements from nearby non-canopy location (also known as the above measurement). At each microclimate site, four measurements were taken at a 2 m distance from the logger in ordinal directions. These measurements were averaged to produce an LAI for each site location. 
+	
+Files include the raw LAI data from the above and below canopy wand (see:raw files). Processed data are included in the csv. Note: Some below canopy measurements were taken in above mode and are erroneous. This data has not been cleaned. 
+  
+```{r licor_dat, echo = F}
+
+licor_data <- data.frame(list.files(paste0(getwd(), "/_Field-Collected-Data/Leaf_Area_Index_Licor_Data")))
+names(licor_data) <- "Files"
+knitr::kable(
+  licor_data, booktabs = TRUE, longtable = T,
+  caption = 'LAI data in "Leaf_Area_Index_Licor_Data"')
+
+```
+
+## Vegetation and Litter Data
+
+Five measurements of heigh and depth were randomly collected and values averaged for each site-location. Dominant cover was estimated based on percentages between 0-5, 5-10, 10-25, 25-50, 50-75, and 75-100 %. Cover classes included: shrub, herbs, forbs, graminoids, moss, or bare. Litter and vegetation heights are noted Figure \ref(fig:vegdata). 
+
+We also collected seedling data. At points 2, 4,5,6, and 8 within each logger set up we took one seedling plot. We recorded total number according to three morphologies (A, B, C). A is a douglas-fir seedling, B is a lodgepole pine, and C is spruce. These are recorded under "morpho" of the vegatation data. The structure of vegetation data is noted in Table\ref(tab:vegdata). However, these are named with the original plot names - for ease of use I recommend using the fully compiled vegetation data. This does not have the seedling data. 
+
+If working with seedling data or wanting to access notes, "logger_plotcode.csv" can be used to align plot names. 
+
+```{r vegdata, echo  = F, fig.cap= "Distribution of vegetation ht. and litter depth (cm). Points show mean value for each microclimate site"}
+veg_data <- read_excel("_Field-Collected-Data/Vegetation and Litter Data/Vegetation_Data_Clean.xlsx")
+knitr::kable(
+  head(veg_data), booktabs = TRUE, longtable = T,
+  caption = 'Cleaned Vegetation Data in Wide Format"')
+
+veg_all_sum <- read.csv("_Field-Collected-Data/Compiled_Vegetation Data/For_Plots/veg_all_sum.csv") 
+veg_all_sum$plot_num <- as.factor(veg_all_sum$plot_num)
+all_plots_simp <- read.csv("_Field-Collected-Data/Compiled_Vegetation Data/Compiled_Data.csv")
+all_plots_simp$plot_num <- as.factor(all_plots_simp$plot_num)
+veg_all_sum$plot <- as.factor(veg_all_sum$plot_num)
+veg_all_sum$plot_area <- do.call(paste0, veg_all_sum[, c("plot", "area")])
+
+lit_graph <- ggplot()+ 
+  geom_violin(data = all_plots_simp, aes(plot_num, Lit_depth_cm, color = plot_num, fill = plot_num), alpha = 0.4) + 
+  geom_point(data = veg_all_sum, aes(plot_num,mean_lit, group = logger, color = plot_num), alpha = 0.8, position = 'jitter') +
+  ylab("Litter Depth (cm)") + 
+  labs(color = "Area") + 
+  xlab("Plot")+
+  ggthemes::scale_color_tableau(palette = "Classic Cyclic") +
+  ggthemes::scale_fill_tableau(palette = "Classic Cyclic") + 
+  guides(color = F, fill= F) + 
+  cowplot::theme_cowplot()
+veg_graph <- ggplot()+ 
+  geom_violin(data = all_plots_simp, aes(plot_num, Veg_depth_cm, color = plot_num, fill = plot_num), alpha = 0.4 ) + 
+  geom_point(data = veg_all_sum, aes(plot_num,mean_veg, group = logger, color = plot_num), alpha = 0.8, position = 'jitter') +
+  ylab("Vegetation Height (cm)") + 
+  labs(color = "Area") + 
+  xlab("Plot")  +
+  ggthemes::scale_color_tableau(palette = "Classic Cyclic") +
+  ggthemes::scale_fill_tableau(palette = "Classic Cyclic") +
+  guides(color = F, fill = F) +
+  cowplot::theme_cowplot()
+
+cowplot::plot_grid(lit_graph, veg_graph, nrow = 1, rel_widths = c(1,1))
+
+
+```
+
+## Soil Data 
+
+Soil cores were collected using a standard push soil sample probe. The volume and number of soil samples varied from site-to-site based on the presence of large clasts. Soil samples were dried over a one-week period at 45 degrees C in a standard drying oven. Soil bulk density was calculated based on the volume of soil collected and the final dry weight. Variation in soil bulk density is noted in figure \ref(fig:soildense). Soil type was classified using the standard soil classification based on percent silt, clay, and sand. Samples with high organic content were noted, but organic material was not digested. Soil composition was used to convert soil moisture counts into volumetric soil moisture (% vol) using “TMS3_Calibr User Soil Properties” function 
+
+```{r soildense, echo = F, fig.cap = "Soil Bulk Density (g/cm^3) for each plot. Points are the values derived for each microclimate site", warnings = F}
+all_plots <-  read.csv("_Field-Collected-Data/Compiled_Vegetation Data/For_Plots/all_plots.csv")
+all_plots$plot_num <- as.factor(all_plots$plot_num)
+ggplot(all_plots, aes(plot_num, `bulk.density`, group = plot_num, color = plot_num)) + 
+  geom_boxplot(alpha = 0.2, outlier.color = NA, position = position_dodge(0.8), aes(fill = plot_num)) + 
+  geom_point(alpha = 0.7, sive = 1.2, position = 'jitter')+
+  ylab("Bulk Density (g/cm^3)") + 
+  labs(color = "Plot") +
+  xlab("Plot")+
+  theme(axis.text.x =  element_text(margin = margin(r= 0.4, l = 0.4)))+
+  ggthemes::scale_color_tableau(palette = "Classic Cyclic") +
+  ggthemes::scale_fill_tableau(palette = "Classic Cyclic") + guides(fill = F) +
+  cowplot:: theme_cowplot()
+
+
+```
+
+Soil type was classified by Sarah Smith-Tripp as the samples were dried and processed. The soil samples are currently stored in room 105, but have now been combined for each plot. The percent of clay, silt, and sand was estimated from each sample. Following this, these percentage values were placed in "TMS3-SoilCalibr Utility" which is an excel macro used to convert soil types. See [@wildClimateEcologicallyRelevant2019] for more details. This outputs a calibration equation whose coefficients are noted in "GavinLake_Soils_SMCalibrModelCoeff.csv." The calibration equation, where x is the soil moisture count, is as follows: 
+
+$$f(x) = a(x)^{2} + b(x)- c$$
+
+## Compiled Vegetation Data
+
+Final compiled vegetation is inluded in "Compiled_Data.csv". While this data is servicable, for absolute ease of use I would rely more on the data compiled for the SoilTemp database as this has been pivoted and more variables have been added. 
+
+## Tree Plots 
+
+  To verify the DAP derived canopy model, tree heights were collected in 15 6.5 meter radius circular plots randomly located within the flight areas. Locations are noted in \@ref(fig:Plots). In total, 295 stems (live and dead) were included, with an average of 18 stems per plot. Plot maps are included in figure \@ref(fig:trees). In each plot, DBH, tree height, and status was recorded. Tree height was measured using a Nikon Forester 550 Hypsometer. Measurements were repeated three times to get an average tree height. For each plot, mean and maximum tree height were tabulated and compared to estimates from the DAP canopy height model to assess the accuracy of DAP models. 
+  
+Field measured locations are included in "tree_plot_locations.csv"
+
+```{r trees, echo = F, fig.cap = "Tree Plot Locations", warnings = F}
+
+trees_cartesian <- read.csv("C:/Users/user/Desktop/SmithTripp_Metadata/_Field-Collected-Data/Tree_Plots/trees_cartesian.csv")
+
+trees <- ggplot(trees_cartesian, aes(x, y)) + 
+  geom_point(aes(color=Adgjusted_height, size= as.numeric(DHB)))+
+  #geom_text(hjust=0, size=4, nudge_y=0.5,nudge_x=0.5, angle=15, check_overlap = F)+
+  xlab("X (meters)") + ylab("Y (meters)") + xlim(-10, 10) + ylim(-10, 10) + 
+  geom_vline(xintercept=0) + geom_hline(yintercept = 0) + 
+  facet_wrap(~Plot)+
+  scale_color_gradient(low = "grey74", high = "grey4")+ theme_bw()+
+  theme(legend.text=element_text(size=12), legend.title=element_text(size=13)) + 
+  scale_size_continuous(range = c(0, 3))+
+ geom_segment(arrow=arrow(length=unit(5,"mm")), aes(x=25,xend=25,y=21,yend=25), 
+               colour="darkblue") +
+  annotate(x=25, y=20, label="North", colour="darkblue", geom="text", size=6)+
+  geom_segment(arrow=arrow(length=unit(5,"mm")), aes(x=25,xend=25,y=-21,yend=-25), 
+               colour="darkblue") +
+  annotate(x=25, y=-20, label="South", colour="darkblue", geom="text", size=6)+
+  labs(colour = "Height (m)", size = "DBH (cm)") +
+  guides(shape = guide_legend(override.aes = list(size = 1)))
+
+
+trees
+```

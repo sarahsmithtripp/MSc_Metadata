@@ -1,0 +1,19 @@
+# Microclimate-Data {#micro}
+
+```{r echo = F}
+microclimate_data <- data.frame(list.files(paste0(getwd(), "/_Microclimate-Data")))
+names(microclimate_data) <- "Files"
+knitr::kable(
+  microclimate_data, booktabs = TRUE, longtable = T,
+  caption = 'Microclimate Files in "_Microclimate-Data"')
+
+```
+
+## Raw Microclimate-Data
+
+Raw microclimate data was processed using a combination of rolling means and field notes. If the loggers lid was removed or if the logger was removed from the ground this data was mostly removed. Full details in parsing process are covered in the R file "Microclimate_logger_parsing." 
+
+
+## Processed Microclimate-Data
+
+Processed Microclimate data has had soil moisture counts that were converted using the classified soil types. Soil type classifcation is discussed in {#Field-Site Data}. Files of soil type are also included in \@ref(fielddat).

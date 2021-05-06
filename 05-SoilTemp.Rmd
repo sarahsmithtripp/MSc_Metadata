@@ -1,0 +1,10 @@
+# Soil Temp Meta Data {#soiltemp}
+
+The easiest data to work with for vegetation and forest structure metrics was compiled and submitted to the soil temp database. This set of files includes a word document that details the set-up of the meta-data file. 
+
+Here is a list of the files in submitted to this database: 
+
+```{r}
+soil_temp <- list.files(paste0(getwd(), "/_SoilTemp"))
+
+```

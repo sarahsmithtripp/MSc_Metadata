@@ -1,0 +1,138 @@
+# RPA Aquired Data and Lidar DEM {#drone}
+
+```{r include = F}
+library(tidyverse)
+library(readxl)
+library(raster)
+```
+
+Microclimate sites in the Gavin Lake block were surveyed with a RPA between June 28th and July 4th, 2020. The 10 microclimate plots were flown in four different flight areas. Flights used a DJI Phantom 4 RTK and DJI Pro software for flight planning. DAP and orthophotos are produced from flights with optimum cloudy conditions. Flight heights depended on a field assessment of a safe distance from treetops and ranged from 70 m to 120 m above ground. For the canopy height models, I used the lowest elevation flight data. Details of the RPA, camera and flight planning are included in the table below 
+
+| **Aircraft**    |             |
+| ----------- | ----------- |
+| Max Flight Time      | Approximately 30 mins       |
+| Navigation   | RTK        |
+|GPS Positional Accuracy	| Vert. +/0.1; Horizontal, +/- 0.1 m |
+|Transmission Range |	7 km |
+| **Camera**	| |
+|Sensor |	1” CMOS |
+|ISO Range |	100-3200 |
+|Electronic Shutter Speed	 | 1/8000 s |
+|FOV	| 84 deg |
+|Aperture |	f/2.8 | 
+|Image Size  | 	4864 x 3648 | 
+|**Acquisition Parameters** | | 	
+|Altitude |	~70 m (AGL) |
+|Terrain Following	| 15 m (ALS) | 
+|Image Overlap	| 90 % forward, 80% lateral | 
+
+
+## Raw photos and flight details
+
+**Ground Control Points**
+
+Flight areas are defined by the relative elevation, upper, middle, lower, and one plot called "Old Guy." Raw photos a seperated by 1). flight area and 2) flight. All plots had three seperate flights. Distance above ground is variable but is noted in the file naming schema (e.x. 70m)
+
+Each flight area also at least 5 ground control points that were deployed at some point. Ground control points are here. The naming convention denotes the flight area, the GCP # and the locations of the closest microclimate logger. File locations are shown in Table \@ref(tab:fly)
+
+```{r ground_control, messages = F}
+
+ground_control_points <- read.csv('_RPA-Aqcuired-Data/Flights/Ground_ControlPts/gc_pts_accuracy_CORRECT_WGS84.csv')
+head(ground_control_points)
+
+```
+
+**Flight Photos**
+
+```{r fly, messages = F, warnings = F, echo = F}
+
+file_list <- list.files(paste0(getwd(),"/_RPA-Aqcuired-Data/Flights"), full.names = T)
+
+data_files <- function(file_name){ 
+  flight_data <-list.files(file_name)
+  data_tb <- data.frame(`Flight_Area` = rep(NA, length(flight_data)), Flights = flight_data)
+  data_tb[1,1] <- paste(file_name)
+  return(data_tb)
+  }
+
+data_table_files <- lapply(file_list, data_files) %>% bind_rows()
+options(knitr.kable.NA = '')
+knitr::kable(
+  data_table_files, booktabs = TRUE, longtable = T,
+  caption = 'Raw Photo Data Locations')
+
+```
+
+## Processed DAP point clouds 
+
+**Digital Surface Models**
+Digital surface models include the ground and the canopy. These have not been normalized. They have been aligned to 2009 lidar point clouds. The accuracy of ICP and metashape photo alignment is noted in Table \@ref(tab:ICP). This excel file has the transformation matrix applied to the clouds to align to lidar. 
+
+```{r ICP, echo = F, warnings = F}
+ICP <-  read_excel("_RPA-Aqcuired-Data/DAP_Point_Clouds/alignment_accuracy/Error Matrices and RMS.xlsx", sheet = "Plots")
+options(knitr.kable.NA = '')
+knitr::kable(
+  head(ICP), booktabs = TRUE,
+  caption = 'Example of Error Matrices ')
+
+```
+
+Point clouds included in this meta-data are both aligned but not normalized to the lidar DEM. Align these to the lidar DEM, evaluate the code below: 
+```{r eval = FALSE}
+library(lidR)
+# List files
+aligned_las <- list.files(paste0(getwd(),"/_RPA-Aqcuired-Data/DAP_Point_Clouds/Point_Clouds/Non-classified"))
+#read LAS files
+aligned <- lapply(aligned_las, readLAS)
+
+#load DEM to normalize las files
+dem <- raster("_RPA-Aqcuired-Data/Lidar_DEM/clip_DEM.tif")
+
+#normalize all point clouds with 1-m Lidar DEM
+normalized <- lapply(aligned, normalize_height, dem)
+
+ #write function to change all returns to first return (because DAP point cloud)
+convert_return <- function(las){
+  las@data$ReturnNumber <- 1
+  return(las)
+}
+#convert all returns to 1 for DAP data
+normalized_1 <- lapply(normalized, convert_return)
+```
+
+## Canopy Structure Rasters 
+Canopy Structure Rasters are divided into Canopy height and cover models with a 10cm resolution and Canopy Structural Metrics also at 10cm. A list of all canopy structural metrics is included in Table \@ref(tab:CNP) Canopy Structure.  
+
+All details of the the processing for the canopy height raster are included in the "Canopy_Model_Processing.R" file. 
+
+```{r CNP, messages = F, warnings = F, echo = F}
+
+file_list <- list.files(paste0(getwd(),"/_RPA-Aqcuired-Data/Canopy_Structure"), full.names = T)
+
+data_canopy <- function(file_name){ 
+  canopy_data <-list.files(file_name)
+  data_tb <- data.frame(`Flight_Area` = rep(NA, length(canopy_data)), Flights = canopy_data)
+  data_tb[1,1] <- paste(file_name)
+  return(data_tb)
+  }
+
+df_canopy <- lapply(file_list, data_files) %>% bind_rows()
+options(knitr.kable.NA = '')
+canopy <- knitr::kable(
+  df_canopy, booktabs = TRUE, longtable = T,
+  caption = 'Canopy Structural Metrics')
+canopy
+
+```
+## Lidar DEM Rasters 
+
+I include the DEM I used for my analyses and the raw point file. The lidar point cloud has a point density of 5 pts/m^2. For more information see [@coopsAssessingUtilityLidar2010]
+
+
+```{r lidar, messages = F, warnings = F, echo = F}
+
+file_list <- list.files(paste0(getwd(),"/_RPA-Aqcuired-Data/Lidar_DEM"), full.names = T)
+print(file_list)
+plot(raster(file_list[1]))
+```
+
