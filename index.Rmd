@@ -43,7 +43,7 @@ install.packages("bookdown")
 <li> Compiled Vegetation Data </li> 
 </ol> 
 <li> Soil Temp Data \@ref(soiltemp) </li> 
-<li> R Files used for thesis + Paper </li>
+<li> R Files used for thesis + Paper \@ref(Rprocessing)</li>
 
 ```{r echo = FALSE, Meta_Data_Outline, fig.cap='Overview of Available Data', out.width='80%', fig.asp=.75, fig.align='center'}
 data_outline <- knitr::include_graphics("_bookdown_files/figures/Meta_Data_Outline.png")

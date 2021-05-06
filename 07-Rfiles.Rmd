@@ -1,0 +1,14 @@
+# R Files used to Process Data {#Rprocessing}
+
+Data required extensive processing in a variety of applications (cloudcompare, R, and some applications in ArcGIS). This project is not entirely reproducible using the files stored within, however the findings of the published work are completely reprocible with the material stored within this meta-data. 
+
+R files used to process and run models are stored in "_Rfiles/thesis" and housed in a github repository at: 
+[https://github.com/sarahsmithtripp/thesis.git](https://github.com/sarahsmithtripp/thesis.git)
+
+In this thesis, use __"/_Rfiles/thesis/CleanR_files"__ these have been cleaned to work when you set your working direct to the location where __MetaData__ is stored. 
+
+
+```{r}
+soil_temp <- list.files(paste0(getwd(), "/_Rfiles/thesis"))
+
+```
