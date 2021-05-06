@@ -148,7 +148,7 @@ Field measured locations are included in "tree_plot_locations.csv"
 
 ```{r trees, echo = F, fig.cap = "Tree Plot Locations", warnings = F}
 
-trees_cartesian <- read.csv("C:/Users/user/Desktop/SmithTripp_Metadata/_Field-Collected-Data/Tree_Plots/trees_cartesian.csv")
+trees_cartesian <- read.csv("_Field-Collected-Data/Tree_Plots/trees_cartesian.csv")
 
 trees <- ggplot(trees_cartesian, aes(x, y)) + 
   geom_point(aes(color=Adgjusted_height, size= as.numeric(DHB)))+
