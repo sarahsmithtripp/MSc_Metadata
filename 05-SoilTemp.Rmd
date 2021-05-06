@@ -6,5 +6,5 @@ Here is a list of the files in submitted to this database:
 
 ```{r}
 soil_temp <- list.files(paste0(getwd(), "/_SoilTemp"))
-
+soil_temp
 ```

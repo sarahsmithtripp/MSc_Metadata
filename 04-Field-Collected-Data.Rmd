@@ -66,9 +66,9 @@ knitr::kable(
 
 ## Vegetation and Litter Data
 
-Five measurements of heigh and depth were randomly collected and values averaged for each site-location. Dominant cover was estimated based on percentages between 0-5, 5-10, 10-25, 25-50, 50-75, and 75-100 %. Cover classes included: shrub, herbs, forbs, graminoids, moss, or bare. Litter and vegetation heights are noted Figure \ref(fig:vegdata). 
+Five measurements of height and litter depth were randomly collected and values averaged for each site-location. Dominant cover was estimated based on percentages between 0-5, 5-10, 10-25, 25-50, 50-75, and 75-100 %. Cover classes included: shrub, herbs, forbs, graminoids, moss, or bare. Litter and vegetation heights are noted Figure \ref(fig:vegdata). 
 
-We also collected seedling data. At points 2, 4,5,6, and 8 within each logger set up we took one seedling plot. We recorded total number according to three morphologies (A, B, C). A is a douglas-fir seedling, B is a lodgepole pine, and C is spruce. These are recorded under "morpho" of the vegatation data. The structure of vegetation data is noted in Table\ref(tab:vegdata). However, these are named with the original plot names - for ease of use I recommend using the fully compiled vegetation data. This does not have the seedling data. 
+We also collected seedling data.We set up a 1 m^2 seedling plot At points 2,4,5,6, and 8 within each forest plot.  We recorded total number according to three morphologies (A, B, C). A is a douglas-fir seedling, B is a lodgepole pine, and C is spruce. These are recorded under "morpho" of the vegatation data. The structure of vegetation data is noted in Table\ref(tab:vegdata). However, these are named with the original plot names - for ease of use I recommend using the fully compiled vegetation data. This does not have the seedling data because we recorded ~ 50 individuals. 
 
 If working with seedling data or wanting to access notes, "logger_plotcode.csv" can be used to align plot names. 
 
@@ -132,7 +132,7 @@ ggplot(all_plots, aes(plot_num, `bulk.density`, group = plot_num, color = plot_n
 
 ```
 
-Soil type was classified by Sarah Smith-Tripp as the samples were dried and processed. The soil samples are currently stored in room 105, but have now been combined for each plot. The percent of clay, silt, and sand was estimated from each sample. Following this, these percentage values were placed in "TMS3-SoilCalibr Utility" which is an excel macro used to convert soil types. See [@wildClimateEcologicallyRelevant2019] for more details. This outputs a calibration equation whose coefficients are noted in "GavinLake_Soils_SMCalibrModelCoeff.csv." The calibration equation, where x is the soil moisture count, is as follows: 
+Soil type was classified by Sarah Smith-Tripp as the samples were dried and processed. The soil samples are currently stored in room 105, but have now been combined for each forest plot. The percent of clay, silt, and sand was estimated from each sample. Following this, these percentage values were placed in "TMS3-SoilCalibr Utility" which is an excel macro used to convert soil types. See [@wildClimateEcologicallyRelevant2019] for more details. This outputs a calibration equation whose coefficients are noted in "GavinLake_Soils_SMCalibrModelCoeff.csv." The calibration equation, where x is the soil moisture count, is as follows: 
 
 $$f(x) = a(x)^{2} + b(x)- c$$
 
