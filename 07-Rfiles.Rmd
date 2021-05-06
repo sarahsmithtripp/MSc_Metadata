@@ -8,7 +8,7 @@ R files used to process and run models are stored in "_Rfiles/thesis" and housed
 In this thesis, use __"/_Rfiles/thesis/CleanR_files"__ these have been cleaned to work when you set your working direct to the location where __MetaData__ is stored. 
 
 
-```{r}
-soil_temp <- list.files(paste0(getwd(), "/_Rfiles/thesis"))
-
+```{r, echo = F}
+clean_r_files <- list.files(paste0(getwd(), "/_Rfiles/thesis/CleanR_files"))
+clean_r_files
 ```
