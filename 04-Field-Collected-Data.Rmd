@@ -130,6 +130,8 @@ ggplot(all_plots, aes(plot_num, `bulk.density`, group = plot_num, color = plot_n
   cowplot:: theme_cowplot()
 
 
+
+
 ```
 
 Soil type was classified by Sarah Smith-Tripp as the samples were dried and processed. The soil samples are currently stored in room 105, but have now been combined for each forest plot. The percent of clay, silt, and sand was estimated from each sample. Following this, these percentage values were placed in "TMS3-SoilCalibr Utility" which is an excel macro used to convert soil types. See [@wildClimateEcologicallyRelevant2019] for more details. This outputs a calibration equation whose coefficients are noted in "GavinLake_Soils_SMCalibrModelCoeff.csv." The calibration equation, where x is the soil moisture count, is as follows: 
